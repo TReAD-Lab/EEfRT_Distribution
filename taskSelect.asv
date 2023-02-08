@@ -1,0 +1,73 @@
+function [selection yes reactionTime exit] = taskSelect(window, dexterity, rewardLarge, rewardSmall, cueCardColor, winSelect, exit)
+
+
+
+
+cueCardMatrix = zeros(200,400,3); %Contains the cuecard matrix information
+
+switch(winSelect) %Based on 'w' or 'l' in the run data file, we return whether or not the win will be given or not
+    case 'w'
+        yes = 1;
+    otherwise
+        yes = 0;
+end
+
+
+
+switch(cueCardColor) %Based on 'r', 'y' or 'b' we select the matrix color for the cue card
+    case 'r' %Red...
+        cueCardMatrix(:,:,1) = 256;
+    case 'y' %Yellow
+        cueCardMatrix(:,:,1:2) = 256;
+    otherwise %Blue...
+        cueCardMatrix(:,:,3) = 256;
+end
+        
+
+if dexterity == 'r' 
+    Screen(window,'Flip');
+    Screen('DrawText', window, strcat('The Hard task is worth $', num2str(rewardLarge)),550,300); 
+    %Screen('DrawText', window, strcat('Total Earnings: $',num2str(cumulativeReward)),0,500);
+    Screen(window, 'PutImage', cueCardMatrix);
+    Screen(window,'Flip');
+else
+    Screen(window,'Flip');
+    Screen('DrawText', window, strcat('The Hard task is worth $', num2str(rewardLarge)),550,300); 
+    %Screen('DrawText', window, strcat('Total Earnings: $',num2str(cumulativeReward)),0,500);
+    Screen(window, 'PutImage', cueCardMatrix);
+    Screen(window,'Flip');
+end
+reactionTime = 0;
+j = [1 2];
+j = shuffle(j);
+if j(1) == 1
+    selection = 'e';
+else
+    selection = 'h';
+end
+timeDelta1 = 4;
+startTime1 = GetSecs;
+currentTime1 = GetSecs;
+while currentTime1 < (startTime1+timeDelta1)%While the time has not yet expired...
+     [pressed, secs, kbData] = KbCheck;
+     if pressed == 1
+         if find(kbData) == 49
+             exit = 1;
+          else
+             if find(kbData) == 76
+                 selection = 'e';
+                 reactionTime = GetSecs - startTime1; %Output the reaction time if pressed
+             else
+                 if find(kbData) == 83
+                 selection = 'h';
+                 reactionTime = GetSecs - startTime1; %Output the reaction time if pressed
+                 end
+             end
+         end
+         reactionTime = GetSecs - startTime1;
+         break;
+     end
+     currentTime1 = GetSecs;
+end
+
+Screen(window,'Flip');
